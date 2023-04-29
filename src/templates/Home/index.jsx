@@ -1,6 +1,7 @@
-//import logo from './logo.svg';
+import React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import './styles.css';
-import { Component } from 'react';
 
 import { Post } from '../../components/Post';
 import { Button } from '../../components/Button';
@@ -8,7 +9,65 @@ import { SearchInput } from '../../components/SearchInput';
 
 import { loadPosts } from '../../utils/loadPosts';
 
-export class Home extends Component {
+export const Home = () => {
+  const [posts, setPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [postsPerPage] = useState(2);
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleLoadPosts = useCallback(async (page, postsPerPage) => {
+    const photosAndPosts = await loadPosts();
+
+    setPosts(photosAndPosts.slice(page, postsPerPage));
+    setAllPosts(photosAndPosts);
+  }, []);
+
+  useEffect(() => {
+    handleLoadPosts(0, postsPerPage);
+  }, [handleLoadPosts, postsPerPage]);
+
+  const loadMorePosts = () => {
+    const nextPage = page + postsPerPage;
+    const nextPosts = allPosts.slice(nextPage, nextPage + postsPerPage);
+
+    posts.push(...nextPosts);
+    setPosts(posts);
+    setPage(nextPage);
+  };
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+
+    setSearchValue(value);
+  };
+
+  const noMorePosts = page + postsPerPage >= allPosts.length;
+  const filteredPosts = searchValue
+    ? allPosts.filter((post) => {
+        return post.title.toLowerCase().includes(searchValue.toLowerCase());
+      })
+    : posts;
+
+  return (
+    <section className="container">
+      <div className="search-container">
+        {searchValue && <h1>Search Value: {searchValue} </h1>}
+        <SearchInput onChange={handleChange} />
+      </div>
+
+      {filteredPosts.length > 0 && <Post posts={filteredPosts} />}
+
+      {filteredPosts.length === 0 && <p>Nada encontrado na busca</p>}
+
+      <div className="button-container">
+        {!searchValue && <Button text={'Load More Posts'} onClick={loadMorePosts} disabled={noMorePosts} />}
+      </div>
+    </section>
+  );
+};
+
+/* export class Home extends Component {
 
   constructor(props) {
     super(props)
@@ -65,12 +124,12 @@ export class Home extends Component {
 
           <SearchInput onChange={this.handleChange} />
         </div>
-  
+
         { filteredPosts.length > 0 ? <Post posts={filteredPosts} /> : <p>Nada encontrado na busca =( </p> }
 
         <div className="button-container" >
           { !searchValue && (
-            <Button 
+            <Button
               disabled={noMorePosts}
               text={'Load More Posts'}
               onClick={ this.handleClick }
@@ -80,80 +139,78 @@ export class Home extends Component {
       </section>
     );
   }
+} */
+
+/* constructor(props) {
+  super(props)
+
+  this.state = {
+    counter: 0,
+    posts: [
+      {
+        id: 1,
+        title: 'Titulo 1',
+        body: 'Corpo 1'
+      },
+      {
+        id: 2,
+        title: 'Titulo 2',
+        body: 'Corpo 2'
+      },
+      {
+        id: 3,
+        title: 'Titulo 3',
+        body: 'Corpo 3'
+      }
+    ]
+  }
 }
 
+//Chamado sempre que o componente é montado
+componentDidMount() {
+  this.handleTimeout();
+}
 
-  /* constructor(props) {
-    super(props)
+//Chamado quando o componente atualiza
+componentDidUpdate() {
+  this.handleTimeout();
+}
 
-    this.state = {
-      counter: 0,
-      posts: [
-        {
-          id: 1,
-          title: 'Titulo 1',
-          body: 'Corpo 1'
-        },
-        {
-          id: 2,
-          title: 'Titulo 2',
-          body: 'Corpo 2'
-        },
-        {
-          id: 3,
-          title: 'Titulo 3',
-          body: 'Corpo 3'
-        }
-      ]
-    }
-  }
+//Chamado quando o componente irá ser desmontado, importante p/ evitar propagação de erro e limpar o lixo
+componentWillUnmount() {
+  clearInterval(this.timoutUpdate);
+}
 
-  //Chamado sempre que o componente é montado
-  componentDidMount() {
-    this.handleTimeout();
-  }
+handleTimeout = () => {
+  const { posts, counter } = this.state;
+  posts[0].title = 'Novo Título';
 
-  //Chamado quando o componente atualiza
-  componentDidUpdate() {
-    this.handleTimeout();
-  }
-
-  //Chamado quando o componente irá ser desmontado, importante p/ evitar propagação de erro e limpar o lixo
-  componentWillUnmount() {
-    clearInterval(this.timoutUpdate);
-  }
-
-  handleTimeout = () => {
-    const { posts, counter } = this.state;
-    posts[0].title = 'Novo Título';
-
-    this.timoutUpdate = setTimeout( () => {
-      this.setState({
-        posts, counter: counter + 1
-      })
-    }, 2000 )
-  }
+  this.timoutUpdate = setTimeout( () => {
+    this.setState({
+      posts, counter: counter + 1
+    })
+  }, 2000 )
+}
 
 render() {
 
-    const { posts, counter } = this.state;
+  const { posts, counter } = this.state;
 
-    return(
-      <div className="App" >
-          <h1>{ counter }</h1>
-          {
-          posts.map( post => (
-            <div key={post.id} >
-              <h1>{post.title}</h1>
-              <p>{post.body}</p>
-            </div>
-          ))
-          }
-      </div>
-    );
-  }  
+  return(
+    <div className="App" >
+        <h1>{ counter }</h1>
+        {
+        posts.map( post => (
+          <div key={post.id} >
+            <h1>{post.title}</h1>
+            <p>{post.body}</p>
+          </div>
+        ))
+        }
+    </div>
+  );
+}
 } */
-
 
 /* constructor(props) {
   super(props);
