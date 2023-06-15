@@ -1,3 +1,5 @@
-# Posts with mock API
+Posts with mock API
 
-Created using React for learning
+Dinamic post rendering with React
+
+Deployed app: https://playful-squirrel-7be109.netlify.app/
